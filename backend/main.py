@@ -3,7 +3,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from loginauth.auth import auth_router
 from loginauth.routes import protected_router
-from adminpage.admins import admin_router
+from adminpage.routes.admin import router
 
 app = FastAPI()
 
@@ -20,7 +20,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(protected_router)
 
-app.include_router(admin_router)
+app.include_router(router)
 
 
 @app.get('/')
