@@ -13,6 +13,7 @@ class Database:
         self.client = MongoClient(db_uri)
         self.db = self.client[db_name]
         self.users = self.db.users
+        self.club_details = self.db.club_details
 
     def __del__(self):
         self.client.close()

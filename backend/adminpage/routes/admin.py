@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from adminpage.utilities.database import Database
-from adminpage.utilities.schema import LoginSchema, CreateUserSchema
+from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
 from adminpage.utilities.jwt import create_token
@@ -35,3 +35,17 @@ async def login(user: LoginSchema):
         secret=db.secret,
     )
     return JSONResponse({"token": str(token), "message": "Login validated"})
+
+@router.post("/clubinfo")
+def upload_details(data: ClubDetailsSchema):
+    response = db.club_details.insert_one(data.dict())
+    return {"message": "Club detail stored", "id": str(response.inserted_id)}
+
+@router.get("/clubinfo")
+def get_details():
+    response = db.club_details.find({})
+    data = []
+    for i in response:
+        i["_id"] = str(i["_id"])
+        data.append(i)
+    return data
