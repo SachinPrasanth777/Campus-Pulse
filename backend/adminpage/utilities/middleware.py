@@ -4,8 +4,8 @@ from os import getenv
 
 from fastapi import Request
 
-from utilities.jwt import read_token
-from utilities.response import JSONResponse
+from adminpage.utilities.jwt import read_token
+from adminpage.utilities.response import JSONResponse
 
 load_dotenv()
 SECRET = getenv("SECRET")

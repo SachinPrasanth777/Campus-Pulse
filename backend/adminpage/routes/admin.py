@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from adminpage.utilities.database import Database
 from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
-from adminpage.utilities.jwt import create_token
+from adminpage.utilities.jwt import create_token, read_token
+from adminpage.utilities.middleware import middleware
 
 router = APIRouter()
 db = Database()
@@ -37,9 +38,12 @@ async def login(user: LoginSchema):
     return JSONResponse({"token": str(token), "message": "Login validated"})
 
 @router.post("/clubinfo")
-def upload_details(data: ClubDetailsSchema):
-    response = db.club_details.insert_one(data.dict())
-    return {"message": "Club detail stored", "id": str(response.inserted_id)}
+@middleware
+def upload_details(req:Request,data: ClubDetailsSchema):
+    token_data = read_token(req.headers.get("Authorization"), secret=db.secret)
+    data.user_id=token_data["id"]
+    response = db.club_details.insert_one(dict(data))
+    return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
 @router.get("/clubinfo")
 def get_details():
