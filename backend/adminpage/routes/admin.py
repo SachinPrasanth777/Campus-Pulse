@@ -1,9 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from adminpage.utilities.database import Database
 from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
-from adminpage.utilities.jwt import create_token
+from adminpage.utilities.jwt import create_token, read_token
 
 router = APIRouter()
 db = Database()
@@ -37,12 +37,33 @@ async def login(user: LoginSchema):
     return JSONResponse({"token": str(token), "message": "Login validated"})
 
 @router.post("/clubinfo")
-def upload_details(data: ClubDetailsSchema):
-    response = db.club_details.insert_one(data.dict())
-    return {"message": "Club detail stored", "id": str(response.inserted_id)}
+async def upload_details(req: Request, data: ClubDetailsSchema):
+    auth_header = req.headers.get("Authorization")
+    if not auth_header:
+        return JSONResponse({"error": "No token provided"}, status_code=403)
+    token = auth_header.split(" ")[1]
+    try:
+        token_data = read_token(token, secret=db.secret)
+    except Exception as e:
+        return JSONResponse({"error": "Invalid token"}, status_code=403)
+    data._id = token_data["id"]
+    response = db.club_details.insert_one(dict(data))
+    return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
 @router.get("/clubinfo")
-def get_details():
+async def get_details(req: Request, value: ClubDetailsSchema):
+    auth_header = req.headers.get("Authorization")
+    if not auth_header:
+        return JSONResponse({"error": "No token provided"}, status_code=403)
+    try:
+        token = auth_header.split(" ")[1]
+    except IndexError:
+        return JSONResponse({"error": "Invalid token format"}, status_code=403)
+    try:
+        token_data = read_token(token, secret=db.secret)
+    except Exception as e:
+        return JSONResponse({"error": "Invalid token"}, status_code=403)
+    value._id = token_data["id"]
     response = db.club_details.find({})
     data = []
     for i in response:
