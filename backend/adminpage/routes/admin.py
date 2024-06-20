@@ -4,7 +4,6 @@ from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetail
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
 from adminpage.utilities.jwt import create_token, read_token
-from adminpage.utilities.middleware import middleware
 
 router = APIRouter()
 db = Database()
@@ -38,15 +37,33 @@ async def login(user: LoginSchema):
     return JSONResponse({"token": str(token), "message": "Login validated"})
 
 @router.post("/clubinfo")
-@middleware
-def upload_details(req:Request,data: ClubDetailsSchema):
-    token_data = read_token(req.headers.get("Authorization"), secret=db.secret)
-    data.user_id=token_data["id"]
+async def upload_details(req: Request, data: ClubDetailsSchema):
+    auth_header = req.headers.get("Authorization")
+    if not auth_header:
+        return JSONResponse({"error": "No token provided"}, status_code=403)
+    token = auth_header.split(" ")[1]
+    try:
+        token_data = read_token(token, secret=db.secret)
+    except Exception as e:
+        return JSONResponse({"error": "Invalid token"}, status_code=403)
+    data._id = token_data["id"]
     response = db.club_details.insert_one(dict(data))
     return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
 @router.get("/clubinfo")
-def get_details():
+async def get_details(req: Request, value: ClubDetailsSchema):
+    auth_header = req.headers.get("Authorization")
+    if not auth_header:
+        return JSONResponse({"error": "No token provided"}, status_code=403)
+    try:
+        token = auth_header.split(" ")[1]
+    except IndexError:
+        return JSONResponse({"error": "Invalid token format"}, status_code=403)
+    try:
+        token_data = read_token(token, secret=db.secret)
+    except Exception as e:
+        return JSONResponse({"error": "Invalid token"}, status_code=403)
+    value._id = token_data["id"]
     response = db.club_details.find({})
     data = []
     for i in response:
