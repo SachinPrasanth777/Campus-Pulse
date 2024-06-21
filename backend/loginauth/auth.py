@@ -50,29 +50,38 @@ async def get_details(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=403, content={"message": "User not verified"})
 
 @auth_router.get("/clubinfo/{club_name}")
-async def get_one_details(club_name: str):
-    response = db.club_details.find_one({"club_name": club_name})
-    if not response:
-        return JSONResponse({"error": "Event not found"}, status_code=404)
-    response["_id"] = str(response["_id"])
-    return response
+async def get_one_details(club_name: str,current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.club_details.find_one({"club_name": club_name})
+        if not response:
+            return JSONResponse({"error": "Event not found"}, status_code=404)
+        response["_id"] = str(response["_id"])
+        return response
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
 
 @auth_router.get("/events")
-async def get_events():
-    response = db.events.find({})
-    data = []
-    for i in response:
-        i["_id"] = str(i["_id"])
-        data.append(i)
-    return data
+async def get_events(current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.events.find({})
+        data = []
+        for i in response:
+            i["_id"] = str(i["_id"])
+            data.append(i)
+        return data
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
 
 @auth_router.get("/events/{title}")
-async def get_event_by_slug(title: str):
-    response = db.events.find_one({"title": title})
-    if not response:
-        return JSONResponse({"error": "Event not found"}, status_code=404)
-    response["_id"] = str(response["_id"])
-    return response
+async def get_event_by_slug(title: str,current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.events.find_one({"title": title})
+        if not response:
+            return JSONResponse({"error": "Event not found"}, status_code=404)
+        response["_id"] = str(response["_id"])
+        return response
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
 
 @auth_router.get("/logout")
 async def logout(request: Request, current_user: dict = Depends(get_current_user)):
