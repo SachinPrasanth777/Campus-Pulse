@@ -59,6 +59,23 @@ async def get_details():
         data.append(i)
     return data
 
+@router.get("/events")
+async def get_events():
+    response = db.events.find({})
+    data = []
+    for i in response:
+        i["_id"] = str(i["_id"])
+        data.append(i)
+    return data
+
+@router.get("/events/{slug}")
+async def get_event_by_slug(slug: str):
+    response = db.events.find_one({"slug": slug})
+    if not response:
+        return JSONResponse({"error": "Event not found"}, status_code=404)
+    response["_id"] = str(response["_id"])
+    return response
+
 @router.post("/add-events")
 async def upload_events(req:Request,value: EventDetailsSchema):
     auth_header = req.headers.get("Authorization")

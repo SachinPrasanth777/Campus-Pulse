@@ -22,3 +22,4 @@ class EventDetailsSchema(BaseModel):
     title: str
     description: str
     photo: str
+    slug: str
