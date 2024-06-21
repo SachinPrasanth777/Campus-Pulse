@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,AnyUrl
 
 
 class LoginSchema(BaseModel):
@@ -17,3 +17,8 @@ class ClubDetailsSchema(BaseModel):
     club_projectTitle: str
     club_projectInfo: str
     club_social_media: str
+
+class EventDetailsSchema(BaseModel):
+    title: str
+    description: str
+    photo: AnyUrl
