@@ -4,6 +4,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse, RedirectResponse
 from loginauth.dependencies import get_current_user
 from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema , UserFeedbackSchema
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 auth_router = APIRouter()
 db=Database()
