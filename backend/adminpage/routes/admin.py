@@ -59,6 +59,15 @@ async def get_details():
         data.append(i)
     return data
 
+@router.get("/clubinfo/{club_name}")
+async def get_one_details(club_name: str):
+    response = db.club_details.find({"club_name": club_name})
+    data = []
+    for i in response:
+        i["_id"] = str(i["_id"])
+        data.append(i)
+    return data
+
 @router.get("/events")
 async def get_events():
     response = db.events.find({})
