@@ -15,6 +15,7 @@ class Database:
         self.users = self.db.users
         self.club_details = self.db.club_details
         self.events=self.db.events
+        self.feedbacks=self.db.feedbacks
 
     def __del__(self):
         self.client.close()

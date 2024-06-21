@@ -23,3 +23,6 @@ class EventDetailsSchema(BaseModel):
     description: str
     photo: str
     registration_form: str
+
+class UserFeedbackSchema(BaseModel):
+    description: str

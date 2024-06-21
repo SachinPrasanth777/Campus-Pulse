@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from adminpage.utilities.database import Database
 from authlib.integrations.starlette_client import OAuth, OAuthError
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse, RedirectResponse
 from loginauth.dependencies import get_current_user
-from adminpage.utilities.database import Database
-from starlette.status import HTTP_401_UNAUTHORIZED
+from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema , UserFeedbackSchema
 
 auth_router = APIRouter()
 db=Database()
@@ -82,6 +82,11 @@ async def get_event_by_slug(title: str,current_user: dict = Depends(get_current_
         return response
     else:
         raise HTTPException(status_code=403, content={"message": "User not verified"})
+
+@auth_router.post("/feedback")
+async def feedback(data: UserFeedbackSchema):
+    response = db.feedbacks.insert_one(dict(data))
+    return JSONResponse({"message": "Feedback stored", "_id": str(response.inserted_id)})
 
 @auth_router.get("/logout")
 async def logout(request: Request, current_user: dict = Depends(get_current_user)):

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from adminpage.utilities.database import Database
-from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema
+from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema , UserFeedbackSchema
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
 from adminpage.utilities.jwt import create_token, read_token
