@@ -22,5 +22,4 @@ class EventDetailsSchema(BaseModel):
     title: str
     description: str
     photo: str
-    slug: str
     registration_form: str

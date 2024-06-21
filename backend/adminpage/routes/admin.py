@@ -77,9 +77,9 @@ async def get_events():
         data.append(i)
     return data
 
-@router.get("/events/{slug}")
-async def get_event_by_slug(slug: str):
-    response = db.events.find_one({"slug": slug})
+@router.get("/events/{title}")
+async def get_event_by_slug(title: str):
+    response = db.events.find_one({"slug": title})
     if not response:
         return JSONResponse({"error": "Event not found"}, status_code=404)
     response["_id"] = str(response["_id"])
