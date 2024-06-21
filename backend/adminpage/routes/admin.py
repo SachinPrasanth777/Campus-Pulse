@@ -85,5 +85,5 @@ async def upload_events(req:Request,value: EventDetailsSchema):
     except Exception as e:
         return JSONResponse({"error": "Invalid token"}, status_code=403)
     value._id = token_data["id"]
-    response = db.club_details.insert_one(dict(value))
+    response = db.events.insert_one(dict(value))
     return JSONResponse({"message": "Events detail stored", "id": str(response.inserted_id)})
