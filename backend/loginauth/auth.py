@@ -2,9 +2,11 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi.responses import JSONResponse, RedirectResponse
 from loginauth.dependencies import get_current_user
+from adminpage.utilities.database import Database
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 auth_router = APIRouter()
+db=Database()
 
 oauth = OAuth()
 oauth.register(
@@ -34,6 +36,52 @@ async def auth(request: Request):
         request.session["user"] = dict(user)
         return RedirectResponse(url="/")
     raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Authentication failed")
+
+@auth_router.get("/clubinfo")
+async def get_details(current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.club_details.find({})
+        data = []
+        for i in response:
+            i["_id"] = str(i["_id"])
+            data.append(i)
+        return data
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
+
+@auth_router.get("/clubinfo/{club_name}")
+async def get_one_details(club_name: str,current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.club_details.find_one({"club_name": club_name})
+        if not response:
+            return JSONResponse({"error": "Event not found"}, status_code=404)
+        response["_id"] = str(response["_id"])
+        return response
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
+
+@auth_router.get("/events")
+async def get_events(current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.events.find({})
+        data = []
+        for i in response:
+            i["_id"] = str(i["_id"])
+            data.append(i)
+        return data
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
+
+@auth_router.get("/events/{title}")
+async def get_event_by_slug(title: str,current_user: dict = Depends(get_current_user)):
+    if current_user.get('email_verified'):
+        response = db.events.find_one({"title": title})
+        if not response:
+            return JSONResponse({"error": "Event not found"}, status_code=404)
+        response["_id"] = str(response["_id"])
+        return response
+    else:
+        raise HTTPException(status_code=403, content={"message": "User not verified"})
 
 @auth_router.get("/logout")
 async def logout(request: Request, current_user: dict = Depends(get_current_user)):

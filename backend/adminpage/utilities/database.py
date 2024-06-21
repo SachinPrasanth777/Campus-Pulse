@@ -14,6 +14,7 @@ class Database:
         self.db = self.client[db_name]
         self.users = self.db.users
         self.club_details = self.db.club_details
+        self.events=self.db.events
 
     def __del__(self):
         self.client.close()

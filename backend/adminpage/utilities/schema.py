@@ -17,3 +17,9 @@ class ClubDetailsSchema(BaseModel):
     club_projectTitle: str
     club_projectInfo: str
     club_social_media: str
+
+class EventDetailsSchema(BaseModel):
+    title: str
+    description: str
+    photo: str
+    registration_form: str

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from adminpage.utilities.database import Database
-from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema
+from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema
 from adminpage.utilities.hash import hash_password, check_password
 from adminpage.utilities.response import JSONResponse
 from adminpage.utilities.jwt import create_token, read_token
@@ -50,8 +50,8 @@ async def upload_details(req: Request, data: ClubDetailsSchema):
     response = db.club_details.insert_one(dict(data))
     return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
-@router.get("/clubinfo")
-async def get_details(req: Request, value: ClubDetailsSchema):
+@router.post("/add-events")
+async def upload_events(req:Request,value: EventDetailsSchema):
     auth_header = req.headers.get("Authorization")
     if not auth_header:
         return JSONResponse({"error": "No token provided"}, status_code=403)
@@ -64,9 +64,5 @@ async def get_details(req: Request, value: ClubDetailsSchema):
     except Exception as e:
         return JSONResponse({"error": "Invalid token"}, status_code=403)
     value._id = token_data["id"]
-    response = db.club_details.find({})
-    data = []
-    for i in response:
-        i["_id"] = str(i["_id"])
-        data.append(i)
-    return data
+    response = db.events.insert_one(dict(value))
+    return JSONResponse({"message": "Events detail stored", "id": str(response.inserted_id)})
