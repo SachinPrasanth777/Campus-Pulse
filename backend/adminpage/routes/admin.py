@@ -50,41 +50,6 @@ async def upload_details(req: Request, data: ClubDetailsSchema):
     response = db.club_details.insert_one(dict(data))
     return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
-@router.get("/clubinfo")
-async def get_details():
-    response = db.club_details.find({})
-    data = []
-    for i in response:
-        i["_id"] = str(i["_id"])
-        data.append(i)
-    return data
-
-@router.get("/clubinfo/{club_name}")
-async def get_one_details(club_name: str):
-    response = db.club_details.find({"club_name": club_name})
-    data = []
-    for i in response:
-        i["_id"] = str(i["_id"])
-        data.append(i)
-    return data
-
-@router.get("/events")
-async def get_events():
-    response = db.events.find({})
-    data = []
-    for i in response:
-        i["_id"] = str(i["_id"])
-        data.append(i)
-    return data
-
-@router.get("/events/{title}")
-async def get_event_by_slug(title: str):
-    response = db.events.find_one({"slug": title})
-    if not response:
-        return JSONResponse({"error": "Event not found"}, status_code=404)
-    response["_id"] = str(response["_id"])
-    return response
-
 @router.post("/add-events")
 async def upload_events(req:Request,value: EventDetailsSchema):
     auth_header = req.headers.get("Authorization")
