@@ -51,19 +51,7 @@ async def upload_details(req: Request, data: ClubDetailsSchema):
     return JSONResponse({"message": "Club detail stored", "id": str(response.inserted_id)})
 
 @router.get("/clubinfo")
-async def get_details(req: Request, value: ClubDetailsSchema):
-    auth_header = req.headers.get("Authorization")
-    if not auth_header:
-        return JSONResponse({"error": "No token provided"}, status_code=403)
-    try:
-        token = auth_header.split(" ")[1]
-    except IndexError:
-        return JSONResponse({"error": "Invalid token format"}, status_code=403)
-    try:
-        token_data = read_token(token, secret=db.secret)
-    except Exception as e:
-        return JSONResponse({"error": "Invalid token"}, status_code=403)
-    value._id = token_data["id"]
+async def get_details():
     response = db.club_details.find({})
     data = []
     for i in response:
