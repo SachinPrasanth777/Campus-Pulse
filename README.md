@@ -56,4 +56,4 @@ This app uses the following tech stacks:
 - MongoDB
 - Hugging Faces(For Deployment)
 - Flutter
--Docker
+- Docker
