@@ -3,9 +3,12 @@ from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse, RedirectResponse
 from loginauth.dependencies import get_current_user
-from adminpage.utilities.schema import LoginSchema, CreateUserSchema, ClubDetailsSchema, EventDetailsSchema , UserFeedbackSchema
+from adminpage.utilities.schema import UserFeedbackSchema
 from starlette.status import HTTP_401_UNAUTHORIZED
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 auth_router = APIRouter()
 db=Database()
 
@@ -13,8 +16,8 @@ oauth = OAuth()
 oauth.register(
     name="google",
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_id="699902429350-29ae57boo85q1pce3lvvc4siqj7o0qqs.apps.googleusercontent.com",
-    client_secret="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",
+    client_id=os.getenv("CLIENT_ID"),
+    client_secret=os.getenv("CLIENT_SECRET"),
     client_kwargs={"scope": "openid profile email"},
 )
 
